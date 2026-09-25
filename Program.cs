@@ -1,13 +1,27 @@
 bool on = true;
 List<BankSystem> users = new List<BankSystem>();
+int options = 0;
 int id = 0;
+
 
 while (on)
 {
-    Console.WriteLine("Welcome to the Bank System!\n\nMenu\n------------------------\n1. Create Account\n2. Login\n3. View Accounts\n4. Edit user\n5. Delete user\n6. Exit\n\nSelect an option: ");
-    int options = int.Parse(Console.ReadLine()!);
+    try
+    {
 
-    if (options == 1)
+        Console.WriteLine("Welcome to the Bank System!\n\nMenu\n------------------------\n1. Create Account\n2. Login\n3. View Accounts\n4. Edit user\n5. Delete user\n6. Exit\n\nSelect an option: ");
+        options = int.Parse(Console.ReadLine()!);
+    }
+    catch (FormatException ex)
+    {
+        Console.WriteLine("Invalid input. Please enter a number." + ex.Message);
+    };
+    if (options < 1 || options > 6)
+    {
+        Console.WriteLine("Invalid option. Please select a valid option.");
+        continue;
+    }
+    else if (options == 1)
     {
         Console.WriteLine("Enter your username: ");
         string? username = Console.ReadLine();
