@@ -1,5 +1,5 @@
 bool on = true;
-List<BankSystem> users = new List<BankSystem>();
+List<BankAccount> users = new List<BankAccount>();
 int options = 0;
 int id = 0;
 
@@ -8,8 +8,7 @@ while (on)
 {
     try
     {
-
-        Console.WriteLine("Welcome to the Bank System!\n\nMenu\n------------------------\n1. Create Account\n2. Login\n3. View Accounts\n4. Edit user\n5. Delete user\n6. Exit\n\nSelect an option: ");
+        Console.WriteLine("Welcome to the BankSystem!\n\nMenu\n------------------------\n1. Create Account\n2. Login\n3. View Accounts\n4. Edit user\n5. Delete user\n6. Exit\n\nSelect an option: ");
         options = int.Parse(Console.ReadLine()!);
     }
     catch (FormatException ex)
@@ -30,23 +29,29 @@ while (on)
         Console.WriteLine("Enter your password: ");
         string? password = Console.ReadLine();
 
-        BankSystem bankSystem = new BankSystem();
+        if (users.Any(u => u.Email == email))
+        {
+            Console.WriteLine("Email already exists. Please try again.");
+            continue;
+        }
+
+        BankAccount Account = new BankAccount();
         id++;
-        bankSystem.Id = id;
-        bankSystem.username = username;
-        bankSystem.email = email;
-        bankSystem.password = password;
-        users.Add(bankSystem);
+        Account.Id = id;
+        Account.Username = username;
+        Account.Email = email;
+        Account.Password = password;
+        users.Add(Account);
         Console.WriteLine("Account created successfully!");
     }
     else if (options == 2)
     {
-        Console.WriteLine("Enter your email: ");
+        Console.WriteLine("Enter your Email: ");
         string? email = Console.ReadLine();
-        Console.WriteLine("Enter your password: ");
+        Console.WriteLine("Enter your Password: ");
         string? password = Console.ReadLine();
 
-        BankSystem? user = users.FirstOrDefault(u => u.email == email && u.password == password);
+        BankAccount? user = users.FirstOrDefault(u => u.Email == email && u.Password == password);
         
         if (user != null)
         {
@@ -54,22 +59,29 @@ while (on)
             while (bank_status)
             {
                 Console.WriteLine("Welcome to the Bank System!\n\nMenu\n------------------------\n1. Deposit\n2. Withdraw\n\n3. Transfer\n4. Check Balance\n5. Logout\n\nSelect an option: ");
-                int bank_options = int.Parse(Console.ReadLine()!);
+                int bank_options = int.TryParse(Console.ReadLine()!);
                 if (bank_options == 1)
                 {
                     Console.WriteLine("Enter the amount to deposit: ");
-                    decimal depositAmount = decimal.Parse(Console.ReadLine()!);
-                    user.balance += depositAmount;
-                    Console.WriteLine($"Deposited {depositAmount}. New balance: {user.balance}");
+                    decimal depositAmount = decimal.TryParse(Console.ReadLine()!);
+                    if (depositAmount == 0 || depositAmount < 0)
+                    {
+                        Console.WriteLine("Invalid deposit amount.");
+                    }
+                    else
+                    {
+                        user.Balance += depositAmount;
+                        Console.WriteLine($"Deposited {depositAmount}. New balance: {user.Balance}");
+                    }
                 }
                 else if (bank_options == 2)
                 {
                     Console.WriteLine("Enter the amount to withdraw: ");
-                    decimal withdrawAmount = decimal.Parse(Console.ReadLine()!);
-                    if (withdrawAmount <= user.balance)
+                    decimal withdrawAmount = decimal.TryParse(Console.ReadLine()!);
+                    if (withdrawAmount <= user.Balance)
                     {
-                        user.balance -= withdrawAmount;
-                        Console.WriteLine($"Withdrew {withdrawAmount}. New balance: {user.balance}");
+                        user.Balance -= withdrawAmount;
+                        Console.WriteLine($"Withdrew {withdrawAmount}. New balance: {user.Balance}");
                     }
                     else
                     {
@@ -80,16 +92,16 @@ while (on)
                 {
                     Console.WriteLine("Enter the email of the user to transfer to: ");
                     string? transferEmail = Console.ReadLine();
-                    BankSystem? transferUser = users.FirstOrDefault(u => u.email == transferEmail);
+                    BankAccount? transferUser = users.FirstOrDefault(u => u.Email == transferEmail);
                     if (transferUser != null)
                     {
                         Console.WriteLine("Enter the amount to transfer: ");
-                        decimal transferAmount = decimal.Parse(Console.ReadLine()!);
-                        if (transferAmount <= user.balance)
+                        decimal transferAmount = decimal.TryParse(Console.ReadLine()!);
+                        if (transferAmount <= user.Balance)
                         {
-                            user.balance -= transferAmount;
-                            transferUser.balance += transferAmount;
-                            Console.WriteLine($"Transferred {transferAmount} to {transferUser.username}. New balance: {user.balance}");
+                            user.Balance -= transferAmount;
+                            transferUser.Balance += transferAmount;
+                            Console.WriteLine($"Transferred {transferAmount} to {transferUser.Username}. New balance: {user.Balance}");
                         }
                         else
                         {
@@ -104,14 +116,14 @@ while (on)
 
                 else if (bank_options == 4)
                 {
-                    Console.WriteLine($"Current balance: {user.balance}");
+                    Console.WriteLine($"Current balance: {user.Balance}");
                 }
                 else if (bank_options == 5)
                 {
                     bank_status = false;
                 }
             }
-            Console.WriteLine($"Welcome, {user.username}!");
+            Console.WriteLine($"Welcome, {user.Username}!");
         }
         else
         {
@@ -120,25 +132,25 @@ while (on)
     }
     else if (options == 3)
     {
-        foreach (BankSystem user in users)
+        foreach (BankAccount user in users)
         {
-            Console.WriteLine($"ID: {user.Id}, Username: {user.username}, Email: {user.email}");
+            Console.WriteLine($"ID: {user.Id}, Username: {user.Username}, Email: {user.Email}");
         }
     }
     else if (options == 4)
     {
         Console.WriteLine("Enter the ID of the user you want to edit: ");
-        int editId = int.Parse(Console.ReadLine()!);
-        BankSystem? userToEdit = users.FirstOrDefault(u => u.Id == editId);
+        int editId = int.TryParse(Console.ReadLine()!);
+        BankAccount? userToEdit = users.FirstOrDefault(u => u.Id == editId);
 
         if (userToEdit != null)
         {
             Console.WriteLine("Enter new username: ");
-            userToEdit.username = Console.ReadLine();
+            userToEdit.Username = Console.ReadLine();
             Console.WriteLine("Enter new email: ");
-            userToEdit.email = Console.ReadLine();
+            userToEdit.Email = Console.ReadLine();
             Console.WriteLine("Enter new password: ");
-            userToEdit.password = Console.ReadLine();
+            userToEdit.Password = Console.ReadLine();
             Console.WriteLine("User updated successfully!");
         }
         else
@@ -149,8 +161,8 @@ while (on)
     else if (options == 5)
     {
         Console.WriteLine("Enter the ID of the user you want to delete: ");
-        int deleteId = int.Parse(Console.ReadLine()!);
-        BankSystem? userToDelete = users.FirstOrDefault(u => u.Id == deleteId);
+        int deleteId = int.TryParse(Console.ReadLine()!);
+        BankAccount? userToDelete = users.FirstOrDefault(u => u.Id == deleteId);
 
         if (userToDelete != null)
         {
@@ -168,11 +180,11 @@ while (on)
     }
 }
 
-public class BankSystem
+public class BankAccount
 {
-    public int Id { get; set; }
-    public string? username { get; set; }
-    public string? email { get; set; }
-    public string? password { get; set; }
-   public decimal? balance { get; set; }
+    public int Id { get; set; } = 0;
+    public string Username { get; set; } = "";
+    public string Email { get; set; } = "";
+    public string Password { get; set; } = "";
+    public decimal Balance { get; set; } = 0;
 }
