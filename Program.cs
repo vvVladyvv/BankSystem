@@ -57,6 +57,7 @@ while (on)
             bool bank_status = true;
             while (bank_status)
             {
+                Console.WriteLine($"Welcome, {user.Username}!");
                 Console.WriteLine("Welcome to the Bank System!\n\nMenu\n------------------------\n1. Deposit\n2. Withdraw\n\n3. Transfer\n4. Check Balance\n5. Logout\n\nSelect an option: ");
                 bool bank_options_success = int.TryParse(Console.ReadLine()!, out bank_options);
                 if (!bank_options_success)
@@ -117,8 +118,21 @@ while (on)
                     if (transferUser != null)
                     {
                         Console.WriteLine("Enter the amount to transfer: ");
-                        decimal transferAmount = decimal.TryParse(Console.ReadLine()!);
-                        if (transferAmount <= user.Balance)
+                        bool transfer_success = decimal.TryParse(Console.ReadLine()!, out decimal transferAmount);
+                        if (!transfer_success)
+                        {
+                            Console.WriteLine("Invalid transfer amount.");
+                        }
+                        else if(transferAmount == 0 || transferAmount < 0)
+                        {
+                            Console.WriteLine("Invalid transfer amount.");
+                        }
+                        else if(transferUser.Email == user.Email)
+                        {
+                            Console.WriteLine("You cannot transfer to yourself.");
+                        }
+                  
+                        else if (transferAmount <= user.Balance)
                         {
                             user.Balance -= transferAmount;
                             transferUser.Balance += transferAmount;
@@ -144,7 +158,7 @@ while (on)
                     bank_status = false;
                 }
             }
-            Console.WriteLine($"Welcome, {user.Username}!");
+            
         }
         else
         {
@@ -161,7 +175,7 @@ while (on)
     else if (options == 4)
     {
         Console.WriteLine("Enter the ID of the user you want to edit: ");
-        int editId = int.TryParse(Console.ReadLine()!);
+        bool parseSuccess = int.TryParse(Console.ReadLine()!, out int editId);
         BankAccount? userToEdit = users.FirstOrDefault(u => u.Id == editId);
 
         if (userToEdit != null)
