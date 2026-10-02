@@ -6,15 +6,13 @@ int id = 0;
 
 while (on)
 {
-    try
+    Console.WriteLine("Welcome to the BankSystem!\n\nMenu\n------------------------\n1. Create Account\n2. Login\n3. View Accounts\n4. Edit user\n5. Delete user\n6. Exit\n\nSelect an option: ");
+    bool success = int.TryParse(Console.ReadLine()!, out options);
+    if (!success)
     {
-        Console.WriteLine("Welcome to the BankSystem!\n\nMenu\n------------------------\n1. Create Account\n2. Login\n3. View Accounts\n4. Edit user\n5. Delete user\n6. Exit\n\nSelect an option: ");
-        options = int.Parse(Console.ReadLine()!);
+        Console.WriteLine("Invalid input. Please enter a number.");
     }
-    catch (FormatException ex)
-    {
-        Console.WriteLine("Invalid input. Please enter a number." + ex.Message);
-    };
+
     if (options < 1 || options > 6)
     {
         Console.WriteLine("Invalid option. Please select a valid option.");
@@ -55,16 +53,31 @@ while (on)
         
         if (user != null)
         {
+            int bank_options = 0;
             bool bank_status = true;
             while (bank_status)
             {
                 Console.WriteLine("Welcome to the Bank System!\n\nMenu\n------------------------\n1. Deposit\n2. Withdraw\n\n3. Transfer\n4. Check Balance\n5. Logout\n\nSelect an option: ");
-                int bank_options = int.TryParse(Console.ReadLine()!);
-                if (bank_options == 1)
+                bool bank_options_success = int.TryParse(Console.ReadLine()!, out bank_options);
+                if (!bank_options_success)
+                {
+                    Console.WriteLine("Invalid input. Please enter a number.");
+                    continue;
+                }
+                if (bank_options < 1 || bank_options > 5)
+                {
+                    Console.WriteLine("Invalid option. Please select a valid option.");
+                    continue;
+                }
+                else if (bank_options == 1)
                 {
                     Console.WriteLine("Enter the amount to deposit: ");
-                    decimal depositAmount = decimal.TryParse(Console.ReadLine()!);
-                    if (depositAmount == 0 || depositAmount < 0)
+                    bool deposit_success = decimal.TryParse(Console.ReadLine()!, out decimal depositAmount);
+                    if (!deposit_success)
+                    {
+                        Console.WriteLine("Invalid deposit amount.");
+                    }
+                    else if (depositAmount == 0 || depositAmount < 0)
                     {
                         Console.WriteLine("Invalid deposit amount.");
                     }
