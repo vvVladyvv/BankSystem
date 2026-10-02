@@ -196,7 +196,13 @@ while (on)
     else if (options == 5)
     {
         Console.WriteLine("Enter the ID of the user you want to delete: ");
-        int deleteId = int.TryParse(Console.ReadLine()!);
+        bool parseSuccess = int.TryParse(Console.ReadLine()!, out int deleteId);
+        if (!parseSuccess)
+        {
+            Console.WriteLine("Invalid user ID.");
+            return;
+        }
+
         BankAccount? userToDelete = users.FirstOrDefault(u => u.Id == deleteId);
 
         if (userToDelete != null)
