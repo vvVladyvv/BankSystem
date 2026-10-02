@@ -90,8 +90,16 @@ while (on)
                 else if (bank_options == 2)
                 {
                     Console.WriteLine("Enter the amount to withdraw: ");
-                    decimal withdrawAmount = decimal.TryParse(Console.ReadLine()!);
-                    if (withdrawAmount <= user.Balance)
+                    bool withdraw_success = decimal.TryParse(Console.ReadLine()!, out decimal withdrawAmount);
+                    if (!withdraw_success)
+                    {
+                        Console.WriteLine("Invalid withdrawal amount.");
+                    }
+                    else if(withdrawAmount == 0 || withdrawAmount < 0)
+                    {
+                        Console.WriteLine("Invalid withdrawal amount.");
+                    }
+                    else if (withdrawAmount <= user.Balance)
                     {
                         user.Balance -= withdrawAmount;
                         Console.WriteLine($"Withdrew {withdrawAmount}. New balance: {user.Balance}");
