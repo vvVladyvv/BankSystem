@@ -178,6 +178,12 @@ while (on)
         bool parseSuccess = int.TryParse(Console.ReadLine()!, out int editId);
         BankAccount? userToEdit = users.FirstOrDefault(u => u.Id == editId);
 
+        if (!parseSuccess)
+        {
+            Console.WriteLine("Invalid user ID.");
+            continue;
+        }
+
         if (userToEdit != null)
         {
             Console.WriteLine("Enter new username: ");
@@ -200,7 +206,7 @@ while (on)
         if (!parseSuccess)
         {
             Console.WriteLine("Invalid user ID.");
-            return;
+            continue;
         }
 
         BankAccount? userToDelete = users.FirstOrDefault(u => u.Id == deleteId);
@@ -224,8 +230,8 @@ while (on)
 public class BankAccount
 {
     public int Id { get; set; } = 0;
-    public string Username { get; set; } = "";
-    public string Email { get; set; } = "";
-    public string Password { get; set; } = "";
+    public string? Username { get; set; } = "";
+    public string? Email { get; set; } = "";
+    public string? Password { get; set; } = "";
     public decimal Balance { get; set; } = 0;
 }
