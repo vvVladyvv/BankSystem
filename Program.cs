@@ -1,5 +1,8 @@
+using System.Buffers;
+using System.Reflection.Metadata;
+
 bool on = true;
-List<BankAccount> users = new List<BankAccount>();
+Bank_Operations = new BankAccount();
 int options = 0;
 int id = 0;
 
@@ -27,20 +30,22 @@ while (on)
         Console.WriteLine("Enter your password: ");
         string? password = Console.ReadLine();
 
-        if (users.Any(u => u.Email == email))
-        {
-            Console.WriteLine("Email already exists. Please try again.");
-            continue;
-        }
-
         BankAccount Account = new BankAccount();
         id++;
         Account.Id = id;
         Account.Username = username;
         Account.Email = email;
         Account.Password = password;
-        users.Add(Account);
-        Console.WriteLine("Account created successfully!");
+        
+        bool success = Bank_Operations.RegisterAccount(Account);
+        if (success)
+        {
+            Console.WriteLine("Account registered successfully!");
+        }
+        else
+        {
+            Console.WriteLine("Failed to register account.");
+        }
     }
     else if (options == 2)
     {
@@ -49,9 +54,13 @@ while (on)
         Console.WriteLine("Enter your Password: ");
         string? password = Console.ReadLine();
 
-        BankAccount? user = users.FirstOrDefault(u => u.Email == email && u.Password == password);
+        BankAccount Account = new BankAccount();
+        Account.Email = email;
+        Account.Password = password;
+
+        bool success = Bank_Operations.VerifyAccount(Account);
         
-        if (user != null)
+        if (success)
         {
             int bank_options = 0;
             bool bank_status = true;
@@ -234,4 +243,46 @@ public class BankAccount
     public string? Email { get; set; } = "";
     public string? Password { get; set; } = "";
     public decimal Balance { get; set; } = 0;
+
+    List <BankAccount> users = new List<BankAccount>();
+
+    static public bool RegisterAccount(BankAccount Account)
+    {
+        if (Account == null)
+        {
+           new ArgumentNullException(nameof(Account), "Account cannot be null.");
+        };
+
+        else if(users.Any(u => u.Email == Account.Email))
+        {
+            Console.WriteLine("Email already exists. Please try again.");
+            return false;
+        }
+        else
+        {
+            users.Add(Account);
+            return true;
+        }
+    }
+
+    static public bool VerifyAccount(BankAccount Account)
+    {
+        if (Account == null)
+        {
+            new ArgumentNullException(nameof(Account), "Account cannot be null.");
+        }
+
+        else if (users.Any(u => u.Email == Account.Email && u.Password == Account.Password))
+        {
+            Console.WriteLine("Account verified successfully!");
+            return true;
+        }
+        else
+        {
+            Console.WriteLine("Invalid email or password.");
+            return false;
+        }
+
+    }
+ 
 }
