@@ -1,19 +1,18 @@
-using System.Buffers;
+﻿using System.Buffers;
 using System.Reflection.Metadata;
 
-bool on = true;
-Bank_Operations = new BankAccount();
+BankAccount Bank_Operations = new BankAccount();
 int options = 0;
 int id = 0;
 
-
-while (on)
+while (true)
 {
     Console.WriteLine("Welcome to the BankSystem!\n\nMenu\n------------------------\n1. Create Account\n2. Login\n3. View Accounts\n4. Edit user\n5. Delete user\n6. Exit\n\nSelect an option: ");
     bool success = int.TryParse(Console.ReadLine()!, out options);
     if (!success)
     {
         Console.WriteLine("Invalid input. Please enter a number.");
+        continue;
     }
 
     if (options < 1 || options > 6)
@@ -36,9 +35,9 @@ while (on)
         Account.Username = username;
         Account.Email = email;
         Account.Password = password;
-        
-        bool success = Bank_Operations.RegisterAccount(Account);
-        if (success)
+
+        bool accountCreated = Bank_Operations.RegisterAccount(Account);
+        if (accountCreated)
         {
             Console.WriteLine("Account registered successfully!");
         }
@@ -58,15 +57,16 @@ while (on)
         Account.Email = email;
         Account.Password = password;
 
-        bool success = Bank_Operations.VerifyAccount(Account);
-        
-        if (success)
+        bool loginSuccess = Bank_Operations.VerifyAccount(Account);
+
+        if (loginSuccess)
         {
+            BankAccount? user = BankAccount.users.FirstOrDefault(u => u.Email == Account.Email && u.Password == Account.Password);
             int bank_options = 0;
             bool bank_status = true;
             while (bank_status)
             {
-                Console.WriteLine($"Welcome, {user.Username}!");
+                Console.WriteLine($"Welcome, {user!.Username}!");
                 Console.WriteLine("Welcome to the Bank System!\n\nMenu\n------------------------\n1. Deposit\n2. Withdraw\n\n3. Transfer\n4. Check Balance\n5. Logout\n\nSelect an option: ");
                 bool bank_options_success = int.TryParse(Console.ReadLine()!, out bank_options);
                 if (!bank_options_success)
@@ -105,7 +105,7 @@ while (on)
                     {
                         Console.WriteLine("Invalid withdrawal amount.");
                     }
-                    else if(withdrawAmount == 0 || withdrawAmount < 0)
+                    else if (withdrawAmount == 0 || withdrawAmount < 0)
                     {
                         Console.WriteLine("Invalid withdrawal amount.");
                     }
@@ -119,11 +119,11 @@ while (on)
                         Console.WriteLine("Insufficient funds.");
                     }
                 }
-                else if(bank_options == 3)
+                else if (bank_options == 3)
                 {
                     Console.WriteLine("Enter the email of the user to transfer to: ");
                     string? transferEmail = Console.ReadLine();
-                    BankAccount? transferUser = users.FirstOrDefault(u => u.Email == transferEmail);
+                    BankAccount? transferUser = BankAccount.users.FirstOrDefault(u => u.Email == transferEmail);
                     if (transferUser != null)
                     {
                         Console.WriteLine("Enter the amount to transfer: ");
@@ -132,15 +132,14 @@ while (on)
                         {
                             Console.WriteLine("Invalid transfer amount.");
                         }
-                        else if(transferAmount == 0 || transferAmount < 0)
+                        else if (transferAmount == 0 || transferAmount < 0)
                         {
                             Console.WriteLine("Invalid transfer amount.");
                         }
-                        else if(transferUser.Email == user.Email)
+                        else if (transferUser.Email == user.Email)
                         {
                             Console.WriteLine("You cannot transfer to yourself.");
                         }
-                  
                         else if (transferAmount <= user.Balance)
                         {
                             user.Balance -= transferAmount;
@@ -157,7 +156,6 @@ while (on)
                         Console.WriteLine("User not found.");
                     }
                 }
-
                 else if (bank_options == 4)
                 {
                     Console.WriteLine($"Current balance: {user.Balance}");
@@ -167,16 +165,16 @@ while (on)
                     bank_status = false;
                 }
             }
-            
         }
         else
         {
             Console.WriteLine("Invalid email or password.");
+            continue;
         }
     }
     else if (options == 3)
     {
-        foreach (BankAccount user in users)
+        foreach (BankAccount user in BankAccount.users)
         {
             Console.WriteLine($"ID: {user.Id}, Username: {user.Username}, Email: {user.Email}");
         }
@@ -185,7 +183,7 @@ while (on)
     {
         Console.WriteLine("Enter the ID of the user you want to edit: ");
         bool parseSuccess = int.TryParse(Console.ReadLine()!, out int editId);
-        BankAccount? userToEdit = users.FirstOrDefault(u => u.Id == editId);
+        BankAccount? userToEdit = BankAccount.users.FirstOrDefault(u => u.Id == editId);
 
         if (!parseSuccess)
         {
@@ -218,11 +216,11 @@ while (on)
             continue;
         }
 
-        BankAccount? userToDelete = users.FirstOrDefault(u => u.Id == deleteId);
+        BankAccount? userToDelete = BankAccount.users.FirstOrDefault(u => u.Id == deleteId);
 
         if (userToDelete != null)
         {
-            users.Remove(userToDelete);
+            BankAccount.users.Remove(userToDelete);
             Console.WriteLine("User deleted successfully!");
         }
         else
@@ -232,7 +230,7 @@ while (on)
     }
     else if (options == 6)
     {
-        on = false;
+        break;
     }
 }
 
@@ -244,16 +242,16 @@ public class BankAccount
     public string? Password { get; set; } = "";
     public decimal Balance { get; set; } = 0;
 
-    List <BankAccount> users = new List<BankAccount>();
+    public static List<BankAccount> users = new List<BankAccount>();
 
-    static public bool RegisterAccount(BankAccount Account)
+    public bool RegisterAccount(BankAccount Account)
     {
         if (Account == null)
         {
-           new ArgumentNullException(nameof(Account), "Account cannot be null.");
-        };
+            throw new ArgumentNullException(nameof(Account), "Account cannot be null.");
+        }
 
-        else if(users.Any(u => u.Email == Account.Email))
+        if (users.Any(u => u.Email == Account.Email))
         {
             Console.WriteLine("Email already exists. Please try again.");
             return false;
@@ -265,24 +263,59 @@ public class BankAccount
         }
     }
 
-    static public bool VerifyAccount(BankAccount Account)
+    public bool VerifyAccount(BankAccount Account)
     {
         if (Account == null)
         {
-            new ArgumentNullException(nameof(Account), "Account cannot be null.");
+            throw new ArgumentNullException(nameof(Account), "Account cannot be null.");
         }
 
-        else if (users.Any(u => u.Email == Account.Email && u.Password == Account.Password))
+        if (users.Any(u => u.Email == Account.Email && u.Password == Account.Password))
         {
             Console.WriteLine("Account verified successfully!");
             return true;
         }
         else
         {
-            Console.WriteLine("Invalid email or password.");
             return false;
         }
-
     }
- 
+
+    public BankAccount? GetUser(int user_ID)
+    {
+        foreach (BankAccount user in users)
+        {
+            if (user.Id == user_ID)
+            {
+                return user;
+            }
+        }
+
+        return null;
+    }
+
+    public List<BankAccount> get_users()
+    {
+        return users;
+    }
+
+    public void edit_user(int userID)
+    {
+        BankAccount? user = BankAccount.users.FirstOrDefault(u => u.Id == userID);
+
+        if (user == null)
+        {
+            Console.WriteLine("User not found.");
+            return;
+        }
+
+        Console.WriteLine("Enter new username: ");
+        user.Username = Console.ReadLine();
+        Console.WriteLine("Enter new email: ");
+        user.Email = Console.ReadLine();
+        Console.WriteLine("Enter new password: ");
+        user.Password = Console.ReadLine();
+        Console.WriteLine("User updated successfully!");
+    }
+
 }
