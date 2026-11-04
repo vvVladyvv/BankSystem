@@ -1,7 +1,7 @@
 ﻿using System.Buffers;
 using System.Reflection.Metadata;
 
-BankAccount Bank_Operations = new BankAccount();
+BankAccount BankOperations = new BankAccount();
 int options = 0;
 int id = 0;
 
@@ -36,7 +36,7 @@ while (true)
         Account.Email = email;
         Account.Password = password;
 
-        bool accountCreated = Bank_Operations.RegisterAccount(Account);
+        bool accountCreated = BankOperations.RegisterAccount(Account);
         if (accountCreated)
         {
             Console.WriteLine("Account registered successfully!");
@@ -57,7 +57,7 @@ while (true)
         Account.Email = email;
         Account.Password = password;
 
-        bool loginSuccess = Bank_Operations.VerifyAccount(Account);
+        bool loginSuccess = BankOperations.VerifyAccount(Account);
 
         if (loginSuccess)
         {
@@ -174,32 +174,28 @@ while (true)
     }
     else if (options == 3)
     {
-        foreach (BankAccount user in BankAccount.users)
+       Console.WriteLine("List of users:");
+        List<BankAccount> users = BankOperations.GetUsers();
+        foreach (BankAccount user in users)
         {
-            Console.WriteLine($"ID: {user.Id}, Username: {user.Username}, Email: {user.Email}");
+            Console.WriteLine($"ID: {user.Id}, Username: {user.Username}, Email: {user.Email}, Balance: {user.Balance}");
         }
+
     }
     else if (options == 4)
     {
-        Console.WriteLine("Enter the ID of the user you want to edit: ");
-        bool parseSuccess = int.TryParse(Console.ReadLine()!, out int editId);
-        BankAccount? userToEdit = BankAccount.users.FirstOrDefault(u => u.Id == editId);
-
+        Console.WriteLine("Into userID for edit: ");
+        bool parseSuccess = int.TryParse(Console.ReadLine(), out int userID);
         if (!parseSuccess)
         {
-            Console.WriteLine("Invalid user ID.");
+            Console.WriteLine("Invalid user ID. Please enter a valid number.");
             continue;
         }
 
-        if (userToEdit != null)
-        {
-            Console.WriteLine("Enter new username: ");
-            userToEdit.Username = Console.ReadLine();
-            Console.WriteLine("Enter new email: ");
-            userToEdit.Email = Console.ReadLine();
-            Console.WriteLine("Enter new password: ");
-            userToEdit.Password = Console.ReadLine();
-            Console.WriteLine("User updated successfully!");
+        string? response = BankOperations.EditUser(userID);
+
+        if (response != null){
+            Console.WriteLine(response);
         }
         else
         {
@@ -208,20 +204,17 @@ while (true)
     }
     else if (options == 5)
     {
-        Console.WriteLine("Enter the ID of the user you want to delete: ");
-        bool parseSuccess = int.TryParse(Console.ReadLine()!, out int deleteId);
+        Console.WriteLine("Into userID for delete: ");
+        bool parseSuccess = int.TryParse(Console.ReadLine(), out int userID);
         if (!parseSuccess)
         {
-            Console.WriteLine("Invalid user ID.");
+            Console.WriteLine("Invalid user ID. Please enter a valid number.");
             continue;
         }
+        string? response = BankOperations.DeleteUser(userID);
 
-        BankAccount? userToDelete = BankAccount.users.FirstOrDefault(u => u.Id == deleteId);
-
-        if (userToDelete != null)
-        {
-            BankAccount.users.Remove(userToDelete);
-            Console.WriteLine("User deleted successfully!");
+        if (response != null){
+            Console.WriteLine(response);
         }
         else
         {
@@ -294,19 +287,18 @@ public class BankAccount
         return null;
     }
 
-    public List<BankAccount> get_users()
+    public List<BankAccount> GetUsers()
     {
         return users;
     }
 
-    public void edit_user(int userID)
+    public string? EditUser(int userID)
     {
         BankAccount? user = BankAccount.users.FirstOrDefault(u => u.Id == userID);
 
         if (user == null)
         {
-            Console.WriteLine("User not found.");
-            return;
+            return null;
         }
 
         Console.WriteLine("Enter new username: ");
@@ -315,7 +307,21 @@ public class BankAccount
         user.Email = Console.ReadLine();
         Console.WriteLine("Enter new password: ");
         user.Password = Console.ReadLine();
-        Console.WriteLine("User updated successfully!");
+
+        return "User updated successfully!";
+    }
+
+    public string? DeleteUser(int userID)
+    {
+        BankAccount? user = BankAccount.users.FirstOrDefault(u => u.Id == userID);
+
+        if (user == null)
+        {
+            return null;
+        }
+
+        BankAccount.users.Remove(user);
+        return "User deleted successfully!";
     }
 
 }
