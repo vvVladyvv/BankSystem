@@ -1,7 +1,8 @@
-﻿using System.Buffers;
-using System.Reflection.Metadata;
+﻿using BankSystem.Accounts;
+using BankSystem.Services;
 
 BankAccount BankOperations = new BankAccount();
+BankServices bankServices = new BankServices();
 int options = 0;
 int id = 0;
 
@@ -36,7 +37,7 @@ while (true)
         Account.Email = email;
         Account.Password = password;
 
-        bool accountCreated = BankOperations.RegisterAccount(Account);
+        bool accountCreated = bankServices.RegisterAccount(Account);
         if (accountCreated)
         {
             Console.WriteLine("Account registered successfully!");
@@ -57,7 +58,7 @@ while (true)
         Account.Email = email;
         Account.Password = password;
 
-        bool loginSuccess = BankOperations.VerifyAccount(Account);
+        bool loginSuccess = bankServices.VerifyAccount(Account);
 
         if (loginSuccess)
         {
@@ -175,7 +176,7 @@ while (true)
     else if (options == 3)
     {
        Console.WriteLine("List of users:");
-        List<BankAccount> users = BankOperations.GetUsers();
+        List<BankAccount> users = bankServices.GetUsers();
         foreach (BankAccount user in users)
         {
             Console.WriteLine($"ID: {user.Id}, Username: {user.Username}, Email: {user.Email}, Balance: {user.Balance}");
@@ -192,7 +193,7 @@ while (true)
             continue;
         }
 
-        string? response = BankOperations.EditUser(userID);
+        string? response = bankServices.EditUser(userID);
 
         if (response != null){
             Console.WriteLine(response);
@@ -211,7 +212,7 @@ while (true)
             Console.WriteLine("Invalid user ID. Please enter a valid number.");
             continue;
         }
-        string? response = BankOperations.DeleteUser(userID);
+        string? response = bankServices.DeleteUser(userID);
 
         if (response != null){
             Console.WriteLine(response);
@@ -227,101 +228,3 @@ while (true)
     }
 }
 
-public class BankAccount
-{
-    public int Id { get; set; } = 0;
-    public string? Username { get; set; } = "";
-    public string? Email { get; set; } = "";
-    public string? Password { get; set; } = "";
-    public decimal Balance { get; set; } = 0;
-
-    public static List<BankAccount> users = new List<BankAccount>();
-
-    public bool RegisterAccount(BankAccount Account)
-    {
-        if (Account == null)
-        {
-            throw new ArgumentNullException(nameof(Account), "Account cannot be null.");
-        }
-
-        if (users.Any(u => u.Email == Account.Email))
-        {
-            Console.WriteLine("Email already exists. Please try again.");
-            return false;
-        }
-        else
-        {
-            users.Add(Account);
-            return true;
-        }
-    }
-
-    public bool VerifyAccount(BankAccount Account)
-    {
-        if (Account == null)
-        {
-            throw new ArgumentNullException(nameof(Account), "Account cannot be null.");
-        }
-
-        if (users.Any(u => u.Email == Account.Email && u.Password == Account.Password))
-        {
-            Console.WriteLine("Account verified successfully!");
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    public BankAccount? GetUser(int user_ID)
-    {
-        foreach (BankAccount user in users)
-        {
-            if (user.Id == user_ID)
-            {
-                return user;
-            }
-        }
-
-        return null;
-    }
-
-    public List<BankAccount> GetUsers()
-    {
-        return users;
-    }
-
-    public string? EditUser(int userID)
-    {
-        BankAccount? user = BankAccount.users.FirstOrDefault(u => u.Id == userID);
-
-        if (user == null)
-        {
-            return null;
-        }
-
-        Console.WriteLine("Enter new username: ");
-        user.Username = Console.ReadLine();
-        Console.WriteLine("Enter new email: ");
-        user.Email = Console.ReadLine();
-        Console.WriteLine("Enter new password: ");
-        user.Password = Console.ReadLine();
-
-        return "User updated successfully!";
-    }
-
-    public string? DeleteUser(int userID)
-    {
-        BankAccount? user = BankAccount.users.FirstOrDefault(u => u.Id == userID);
-
-        if (user == null)
-        {
-            return null;
-        }
-
-        BankAccount.users.Remove(user);
-        return "User deleted successfully!";
-    }
-
-}
